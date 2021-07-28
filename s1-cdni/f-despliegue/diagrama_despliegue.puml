@@ -31,7 +31,7 @@ Enterprise_Boundary(c_panel5, "Z14s ", "") {
     System(CICS, "CICS", "")
     System(DB2, "DB2", "")
     System(MQ, "MQ", "")
-  
+   
    
 }
 
@@ -43,8 +43,6 @@ Deployment_Node(MQP1, "Instancia de MQ", "MQP1 "){
         System(CICSSUQP, "CICSSUQP", "")
         System(CICSSUDP, "CICSSUDP", "")
 }
-
-    
 
 
 System(DSN, "DSN", "")
