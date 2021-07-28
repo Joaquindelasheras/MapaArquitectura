@@ -1,0 +1,86 @@
+@startuml
+!include ..\..\Librerias\C4_Container.puml
+!define DEVICONS https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/devicons
+!define FONTAWESOME https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/font-awesome-5
+' uncomment the following line and comment the first to use locally
+' !include C4_Container.puml
+!include DEVICONS/angular.puml
+!include DEVICONS/html5.puml
+!include DEVICONS/dotnet.puml
+!include DEVICONS/java.puml
+!include DEVICONS/msql_server.puml
+
+!include FONTAWESOME/server.puml
+!include FONTAWESOME/envelope.puml
+!include FONTAWESOME/mobile.puml
+
+'LAYOUT_TOP_DOWN()
+'LAYOUT_AS_SKETCH()
+LAYOUT_WITH_LEGEND()
+skinparam linetype polyline
+
+title Cuenta DNI (CDNI) - Diagrama de Contenedores
+
+Person(usuarioCuentaDNI, "Usuario Cuenta DNI", "Personas Clientes/No Clientes")
+Person(usuarioBP, "BackOffice BP", "Usuarios Administradores Banco Provincia")
+
+
+System_Boundary(c_link, "Cuenta DNI") {
+    Container_Ext(app_link_CuentaDNI, "APP Cuenta DNI", "Aplicacion Movil","","mobile")
+    Container_Ext(core_link, "VNET", "Sistema Core Link", "", "server")
+    Container_Ext(back_link, "BackOffice", "Sistema Backoffice Link","","html5")
+}
+
+' Sistemas BP
+System_Boundary(c_bipSuc, "BIP Sucursales") {
+    Container(net_ux, "UX .NET", "WebService REST?","Capa UX","dotnet")
+    Container(mule_Process, "Mule", "ESB", "Capa Process", "server")
+    Container(mule_Legacy, "Mule", "ESB", "Capa Legacy", "server")
+}
+
+System_Boundary(c_bip, "BIP") {
+     
+     Container(coreTech, "Core Tech", "Java", "Backend BIP", "server")
+     Container(sonic_bip, "SONIC", "ESB", "BUS de Integracion", "server")
+     Container(bmc_bip, "BMC", "WebServices REST", "Exposición de servicios", "java")
+}
+
+
+
+System(sur, "SUR - Mainframe", "CORE Banco Provincia")
+
+
+' Sistemas Externos
+System_Ext(renaper_system, "Renaper", "API")
+System_Ext(afip, "AFIP", "API")
+
+
+
+' Relacion Usuarios y Cuenta DNI
+Rel(usuarioCuentaDNI, app_link_CuentaDNI, "")
+Rel(usuarioBP, back_link, " ")
+
+'Relaciones entre Sistemas
+Rel(core_link, sur, "Host 2 Host")
+Rel(core_link, bmc_bip, "Consume WS")
+Rel(core_link, net_ux, "Consume WS")
+Rel(core_link,renaper_system ,"Consume API")
+
+
+
+Rel(bmc_bip, sonic_bip, "Consume Colas JMS")
+'Rel(sonic_bip, sur, "Consume WS")
+Rel(sonic_bip, coreTech, "Consume WS")
+
+Rel(net_ux, mule_Process, "Consume WS")
+Rel(mule_Process, mule_Legacy, "Consume WS")
+Rel(mule_Legacy, sur, "Consume WS")
+
+Rel(mule_Legacy, afip, "Consume WS")
+
+
+
+Rel(app_link_CuentaDNI, core_link, "")
+Rel(back_link, core_link, "")
+
+@enduml

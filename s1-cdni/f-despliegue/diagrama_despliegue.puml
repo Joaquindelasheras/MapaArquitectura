@@ -1,0 +1,75 @@
+@startuml
+
+!include ../../Librerias/C4_Deployment.puml
+
+
+title Diagrama de despliegue
+
+note bottom of MQP1 : Esto es una instancia de MQ.
+'Components and elements
+
+skinparam linetype polyline
+ 
+
+Enterprise_Boundary(c_panel1, "TOR", "") {
+    System(CICCSUR, "CICCSUR", "") 
+    System(CICCSUCP, "CICCSUCP", "")  
+}
+
+Enterprise_Boundary(c_panel2, "FOR", "") {
+    System(CICSSUPR, "CICSSUPR", "")
+}
+
+
+Enterprise_Boundary(c_panel4, "AOR H2H ", "") {
+    System(CICSLNKP, "CICSLNKP", "")
+    System(CICSSIAB, "CICSSIAB", "")  
+}
+
+
+Enterprise_Boundary(c_panel5, "Z14s ", "") {
+    System(CICS, "CICS", "")
+    System(DB2, "DB2", "")
+    System(MQ, "MQ", "")
+  
+   
+}
+
+ 
+Deployment_Node(MQP1, "Instancia de MQ", "MQP1 "){
+        System(CICSSSUAP, "CICSSSUAP", "")
+        System(CICSSUBP, "CICSSUBP", "")
+        System(CICCSUCP2, "CICCSUCP", "")
+        System(CICSSUQP, "CICSSUQP", "")
+        System(CICSSUDP, "CICSSUDP", "")
+}
+
+    
+
+
+System(DSN, "DSN", "")
+System(DB2E, "DB2E", "")
+'Relationships
+
+Rel(WS_SOAP1, CICCSUR, " ")
+Rel(WS_SOAP2, CICCSUCP, " ")
+Rel(CICCSUCP, CICCSUCP2, "TOR")
+
+
+Rel(CICS, c_panel1, " ")
+Rel(CICS, c_panel2, " ")
+Rel(CICS, MQ, " ")
+Rel(CICS, c_panel4, " ")
+Rel(CICS, DB2, " ")
+Rel(MQ, MQP1, " ")
+
+
+'Exterior Relationships
+Rel(DSN, DB2, "SOL")
+Rel(DB2E, DB2, "")
+Rel(MQP1, CONSULTAR, "ASYNQ MQ")
+Rel(H2_RED_LINK, c_panel4, "ASYNQ MQ")
+Rel(DB2, c_panel4, "ASYNQ MQ")
+Rel(DB2E, DB2Connect, "")
+
+@enduml

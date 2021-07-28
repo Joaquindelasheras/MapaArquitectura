@@ -1,0 +1,80 @@
+@startuml
+!include ..\..\Librerias\C4_Container.puml
+!define DEVICONS https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/devicons
+!define FONTAWESOME https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/font-awesome-5
+' uncomment the following line and comment the first to use locally
+' !include C4_Container.puml
+!include DEVICONS/angular.puml
+!include DEVICONS/html5.puml
+!include DEVICONS/dotnet.puml
+!include DEVICONS/java.puml
+!include DEVICONS/msql_server.puml
+
+!include FONTAWESOME/server.puml
+!include FONTAWESOME/envelope.puml
+!include FONTAWESOME/mobile.puml
+
+
+'LAYOUT_TOP_DOWN()
+'LAYOUT_AS_SKETCH()
+LAYOUT_WITH_LEGEND()
+skinparam linetype polyline
+
+title Cuenta DNI (CDNI) - Diagrama de Contenedor
+
+' Personas
+Person(usuarioCuentaDNI, "Usuario Cuenta DNI", "Personas Clientes/No Clientes")
+Person(usuarioBP, "BackOffice BP", "Usuarios Administradores Banco Provincia")
+
+' Contenedores Cuenta DNI
+System_Boundary(c_link, "Cuenta DNI") {
+    Container(app_link_CuentaDNI, "APP Cuenta DNI", "Aplicacion Movil","","mobile")
+    Container_Ext(vnet, "VNET", "Backend CUENTA DNI", "", "server")
+    Container_Ext(back_link, "BackOffice", "WebAPP HTML5","","html5")
+   ' Container_Ext(core_link, "BASE24", "Sistema Core Link", "", "server")
+}
+
+' Sistemas Banco Provincia
+System(bip_system, "BIP", "Servicios BMC","")
+System(bipsuc_system, "BIP SUCURSALES", "Servicios UX.NET","")
+System(sur_system, "SUR", "Transacciones CICS expuestas por Webservice SOAP y Colas MQ","")
+
+
+' Sistemas Externos
+System_Ext(base24_system, "BASE24", "RED LINK","")
+System_Ext(prisma_system, "PRISMA", "API","")
+System_Ext(coelsa_system, "COELSA", "API","")
+System_Ext(fiserv_system, "FISERV", "API","")
+System_Ext(talion_system, "TALLION", "API","")
+System_Ext(renaper_system, "RENAPER", "API","")
+System_Ext(afip_system, "AFIP", "API","")
+
+
+' Relacion Usuarios y Cuenta DNI
+Rel(usuarioCuentaDNI, app_link_CuentaDNI, "utiliza")
+Rel(usuarioBP, back_link, "utiliza", "HTTPS")
+
+'Relaciones Contenedor Cuenta DNI
+Rel(app_link_CuentaDNI, vnet, "consume","REST/JSON")
+Rel(back_link, vnet, "consume","REST/JSON")
+Rel(vnet, base24_system, "Usa","???")
+
+'Relaciones Contenedor - Sistemas Externos
+Rel(base24_system, sur_system, "sincroniza","Host 2 Host")
+Rel(vnet, bip_system, "usa","REST/JSON")
+Rel(vnet, bipsuc_system, "usa","REST/JSON")
+Rel(vnet,prisma_system ,"usa","REST/JSON")
+Rel(vnet,coelsa_system ,"usa","REST/JSON")
+Rel(vnet,fiserv_system ,"usa","REST/JSON")
+Rel(vnet,talion_system ,"usa","REST/JSON")
+Rel(vnet,renaper_system ,"usa","REST/JSON")
+
+'Relaciones Bip Sucursales
+Rel(bipsuc_system,sur_system ,"usa","WS SOAP")
+Rel(bip_system,sur_system ,"usa","WS SOAP y Colas MQ")
+Rel(bipsuc_system,afip_system ,"usa","REST/JSON")
+
+
+
+
+@enduml

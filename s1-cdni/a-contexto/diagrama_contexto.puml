@@ -1,0 +1,65 @@
+@startuml
+!include ..\..\Librerias\C4_Context.puml
+
+
+'https://www.codeproject.com/Articles/1167140/The-C-Software-Architecture-Model
+
+'LAYOUT_TOP_DOWN()
+'LAYOUT_AS_SKETCH()
+LAYOUT_WITH_LEGEND()
+skinparam linetype polyline
+
+title Cuenta DNI (CDNI) - Diagrama de Contexto
+' Personas 
+Person(BIP_User, "Usuario BIP",          "Personas que son clientes y usan BIP")
+Person(CC_User,  "Cliente (con cuenta)", "Personas que son clientes, tienen cuenta, sin BIP")
+Person(CDNI_user, "Usuario Cuenta DNI", "Personas que ya realizaron el OnBoarding en CUENTA DNI")
+Person_Ext(SC_user, "Cliente sin cuenta", "Personas que son clientes, pero no tiene cuenta")
+Person_Ext(NC_user, "No Cliente", "Personas que no son clientes")
+Person(SBP_user, "BackOffice BP", "Usuarios Administradores Banco Provincia")
+
+' Sistema Principal (CDNI)
+System(cuentaDNI_system, "CUENTA DNI (CDNI)", "Aplicacion movil que permite el OnBoarding de nuevos clientes y realizar operaciones bancarias (pagos por QR, transferencias, pagos de servicios, etc.). La App y su backend son provistos por RedLink")
+
+' Sistemas Propios
+System(bip_system, "BIP", "Sistema Homebanking del Banco Provincia")
+System(bipsuc_system, "BIP SUCURSALES", "Sistema de Sucursales del Banco Provincia")
+System(sur_system, "SUR", "Sistema CORE principal del Banco Provincia")
+
+' Sistemas Externos
+System_Ext(base24_system, "BASE24 (LINK)", "Sistema CORE de RedLink.")
+System_Ext(prisma_system, "PRISMA", "Provee servicios para realizar pagos con terminales POS y QR")
+System_Ext(coelsa_system, "COELSA", "Provee servicios para consultar ALIAS y CBUs")
+System_Ext(fiserv_system, "FISERV", "Provee servicios para realizar pagos con terminales POS y QR")
+System_Ext(talion_system, "TALLION", "Provee servicios para la carga de tarjetas SUBE y Celulares . <<FALTA VALIDAR CON LINK>>")
+System_Ext(renaper_system, "RENAPER", "Provee servicios para validar identidad con documento (DNI) y biometria facial")
+System_Ext(afip_system, "AFIP", "Provee Servicios para la obtencion de la actividad de una persona")
+
+' Relacion Usuarios y Cuenta DNI
+Rel(BIP_User, cuentaDNI_system, "Realiza el OnBoarding y asocia sus cuentas. Puede utilizar las credenciales de BIP como segundo Factor")
+Rel(CC_User, cuentaDNI_system, "Realiza el OnBoarding y asocia sus cuentas. Puede crear un usuario BIP")
+Rel(CDNI_user, cuentaDNI_system, "Interactua con los diferentes servicios bancarios disponibles en CDNI")
+Rel(SC_user, cuentaDNI_system, "Realiza el OnBoarding, abre una Caja de Ahorro y generar una Tarjeta de Debito en 48 HS")
+Rel(NC_user, cuentaDNI_system, "Realiza el OnBoarding, crear una Caja de Ahorro y generar una Tarjeta de Debito en 48 HS")
+Rel(SBP_user, cuentaDNI_system, "Administra/Consulta el uso y errores de la aplicacion CDNI")
+
+' Relaciones Sistema Principal (CDNI)
+Rel(cuentaDNI_system,bipsuc_system ,"Permite consultar y dar de alta (abreviada) clientes y sus datos principales (Persona, Domicilios, Correo, Telefono, etc.), tambien permite la consultar los productos de estos.")
+Rel(cuentaDNI_system,bip_system ,"Permite la creacion de cuentas a los nuevos clientes, dar de alta el usuario en BIP y utilizar credencias de BIP como segundo factor de autenticacion")
+
+Rel(cuentaDNI_system,base24_system ,"Procesa operaciones sobre las cuentas utilizando los servcios ya existentes para las ATMs (transferencias, consultas de saldo, movimientos, etc.).")
+Rel(cuentaDNI_system,prisma_system ,"Realiza pagos a con codigo de barras, QR, etc.")
+Rel(cuentaDNI_system,coelsa_system ,"Consulta de CBU y ALIAS")
+Rel(cuentaDNI_system,talion_system ,"Realiza la carga de credito en Tarjetas SUBE y Celulares")
+Rel(cuentaDNI_system,fiserv_system ,"Realiza pagos a con codigo de barras, QR, etc.")
+Rel(cuentaDNI_system,renaper_system ,"Valida la identidad de las personas")
+Rel(cuentaDNI_system,afip_system ,"Obtiene informacion del usuario (CUIT, Actividad, etc.)")
+
+' Relaciones Otros Sistemas
+Rel(base24_system,sur_system,"Host 2 Host")
+
+Rel(bipsuc_system,sur_system ,"Consume transacciones")
+Rel(bip_system,sur_system ,"Consume transacciones")
+
+
+@enduml
